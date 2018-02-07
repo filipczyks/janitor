@@ -1,0 +1,31 @@
+<head>
+  <title>GIT Janitor</title>
+</head>
+
+<body>
+  {{> main}}
+</body>
+
+<template name="main">
+  {{#if settings.collection}}
+    <div class="container-fluid">
+        {{> reactiveTable settings=settings}}
+    </div>
+  {{ else }}
+    <p class="bg-primary">Loading branches...</p>
+  {{/if}}
+</template>
+
+<template name="tdBranch">
+  <a href="{{branchUrl}}{{name}}">{{name}}</a>
+</template>
+
+<template name="tdMerged">
+  {{#if merged}}
+    <span class="glyphicon glyphicon-ok"></span>
+  {{/if}}
+</template>
+
+<template name="tdHash">
+  <span style="color: #{{shortHash}}">{{shortHash}}</span>
+</template>
