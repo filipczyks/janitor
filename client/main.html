@@ -7,6 +7,7 @@
 </body>
 
 <template name="main">
+  {{> reloadButtons }}
   {{#if settings.collection}}
     <div class="container-fluid">
         {{> reactiveTable settings=settings}}
@@ -28,4 +29,8 @@
 
 <template name="tdHash">
   <span style="color: #{{shortHash}}">{{shortHash}}</span>
+</template>
+
+<template name="reloadButtons">
+  <button id ="reload">Reload</button>
 </template>

@@ -10,19 +10,18 @@ Template.main.onCreated(function helloOnCreated() {
   
   this.branches.set(Branches.find())
   
-  /*
-  Meteor.call('branches', (err, res) => {
-    if(err) {
-      alert(err);
-    } else {
-      console.log(res);
-      res.map(function(val) {
-        val['shortHash'] = val.hash.substring(0,6);
-      });
-      this.branches.set(res);
-    }
-  });
-  */
+});
+
+Template.reloadButtons.events({
+  'click #reload'(event) {
+    Meteor.call('reloadBranches', (err, res) => {
+      if(err) {
+        alert(err);
+      } else {
+        console.log(res);
+      }
+    });
+  }
 });
 
 Template.main.helpers({
