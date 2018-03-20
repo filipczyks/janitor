@@ -62,13 +62,17 @@ Meteor.startup(() => {
 
 });
 
-Meteor.methods({
+function clearMongoCollection() {
+    Branches.remove({})
+}
 
-  reloadBranches() {
-    clearMongoCollection()
-    saveBranchesToMongo(loadBranchesFromGit())
-  },
-  loadBranchesFromGit() {
+function saveBranchesToMongo(branches) {
+  branches.map(function(branch) {
+      Branches.insert(branch);
+  });
+}
+
+function loadBranchesFromGit() {
     //load git branches
     var mergedBranches = getBranches(['-a', '-r', '--merged'], {'merged': true});
 
@@ -103,6 +107,7 @@ Meteor.methods({
 
             val['message'] = lastCommit.message;
             val['hash'] = lastCommit.hash;
+            val['shortHash'] = lastCommit.hash.substring(0,6);
             val['date'] = lastCommit.date;
         }
 
@@ -110,15 +115,11 @@ Meteor.methods({
     });
 
     return allBranches;
-  },
+}
 
-  saveBranchesToMongo(branches) {
-    branches.map(function(branch) {
-        Branches.insert(branch);
-    });
-  },
-
-  clearMongoCollection() {
-      branches.remove({})
+Meteor.methods({
+  reloadBranches() {
+    clearMongoCollection()
+    saveBranchesToMongo(loadBranchesFromGit())
   }
 })
