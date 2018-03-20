@@ -1,12 +1,16 @@
 import { Template } from 'meteor/templating';
 import { ReactiveVar } from 'meteor/reactive-var';
 import { Settings } from '../settings.js';
+import { Branches } from '../branches.js';
 
 import './main.html';
 
 Template.main.onCreated(function helloOnCreated() {
   this.branches = new ReactiveVar([]);
-
+  
+  this.branches.set(Branches.find())
+  
+  /*
   Meteor.call('branches', (err, res) => {
     if(err) {
       alert(err);
@@ -18,12 +22,13 @@ Template.main.onCreated(function helloOnCreated() {
       this.branches.set(res);
     }
   });
+  */
 });
 
 Template.main.helpers({
-  settings() {
+  settings() {      
       return {
-          collection: Template.instance().branches.get(),
+          collection: Branches.find().fetch(),
           rowsPerPage: 500,
           showFilter: true,
           rowClass: function(item) {

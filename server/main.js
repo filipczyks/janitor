@@ -1,5 +1,5 @@
 import { Meteor } from 'meteor/meteor';
-import { Branches } from '../server/branches.js';
+import { Branches } from '../branches.js';
 import { Settings } from '../settings.js';
 'use strict';
 
@@ -63,14 +63,19 @@ Meteor.startup(() => {
 });
 
 Meteor.methods({
-  branches() {
+
+  reloadBranches() {
+    clearMongoCollection()
+    saveBranchesToMongo(loadBranchesFromGit())
+  },
+  loadBranchesFromGit() {
     //load git branches
     var mergedBranches = getBranches(['-a', '-r', '--merged'], {'merged': true});
 
     var allBranches = getBranches(['-a', '-r'])
     //remove empty lines
     .filter(function(val) {
-        return val != ''
+        return val != '' && val != 'HEAD -> origin/master'
     })
     //check if branch was merged
     .map(function(val, index) {
@@ -105,7 +110,15 @@ Meteor.methods({
     });
 
     return allBranches;
-    //Branches.insert(allBranches);
-    //return Branches.find({});;
+  },
+
+  saveBranchesToMongo(branches) {
+    branches.map(function(branch) {
+        Branches.insert(branch);
+    });
+  },
+
+  clearMongoCollection() {
+      branches.remove({})
   }
 })
