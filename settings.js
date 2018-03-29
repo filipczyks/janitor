@@ -1,4 +1,12 @@
 export const Settings = {
-    repoDir: '/Users/user/repository',
-    branchUrl: 'https://gitlab/projects/commits/',
+    repos: {
+        'first': {
+            dir: '/Users/user/repositories/first',
+            branchUrl: 'https://repository/first/',
+        },
+        'second': {
+            dir: '/Users/user/repositories/second',
+            branchUrl: 'https://repository/second/',
+        },
+    }
 };

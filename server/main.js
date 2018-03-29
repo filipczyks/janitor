@@ -6,8 +6,9 @@ import { Settings } from '../settings.js';
 var
     { spawnSync } = require( 'child_process' );
 
-function logSpawnSync(name, params=[]) {
-    let r = spawnSync(name, params, {cwd: Settings.repoDir});
+function logSpawnSync(name, params=[], repo) {
+    let dir = Settings.repos[repo].dir
+    let r = spawnSync(name, params, {cwd: dir})
     
     //console.log('ERROR: ' + r.stderr.toString());
     //console.log(r.stdout.toString());
@@ -15,10 +16,10 @@ function logSpawnSync(name, params=[]) {
     return r;
 }
 
-function getBranches(params) {
+function getBranches(params, repo) {
     params.unshift('branch');
 
-    let git = logSpawnSync('git', params );
+    let git = logSpawnSync('git', params , repo);
 
     return git.stdout.toString().split('\n').map(function(x) {
         let prefix = 'origin/';
@@ -28,8 +29,8 @@ function getBranches(params) {
     });
 }
 
-function getLastCommit(branch) {
-    let gitLog = logSpawnSync('git', ['log', 'origin/' + branch, '-1']);
+function getLastCommit(branch, repo) {
+    let gitLog = logSpawnSync('git', ['log', 'origin/' + branch, '-1'], repo);
 
     return parseCommit(gitLog.stdout.toString());
 }
@@ -72,11 +73,11 @@ function saveBranchesToMongo(branches) {
   });
 }
 
-function loadBranchesFromGit() {
+function loadBranchesFromGit(repo) {
     //load git branches
-    var mergedBranches = getBranches(['-a', '-r', '--merged'], {'merged': true});
+    var mergedBranches = getBranches(['-a', '-r', '--merged'], repo);
 
-    var allBranches = getBranches(['-a', '-r'])
+    var allBranches = getBranches(['-a', '-r'], repo)
     //remove empty lines
     .filter(function(val) {
         return val != '' && val != 'HEAD -> origin/master'
@@ -97,7 +98,7 @@ function loadBranchesFromGit() {
     })
     //get last commit info
     .map(function(val, index) {
-        let lastCommit = getLastCommit(val.name);
+        let lastCommit = getLastCommit(val.name, repo);
         if(lastCommit != null) {
             val['author'] = lastCommit.author;
 
@@ -109,6 +110,8 @@ function loadBranchesFromGit() {
             val['hash'] = lastCommit.hash;
             val['shortHash'] = lastCommit.hash.substring(0,6);
             val['date'] = lastCommit.date;
+            val['repo'] = repo;
+            val['branchUrl'] = getBranchUrlForRepo(repo) + val.name
         }
 
         return val;
@@ -117,9 +120,19 @@ function loadBranchesFromGit() {
     return allBranches;
 }
 
+function getRepos() {
+    return Object.keys(Settings.repos)
+}
+
+function getBranchUrlForRepo(repo) {
+    return Settings.repos[repo].branchUrl;
+}
+
 Meteor.methods({
   reloadBranches() {
     clearMongoCollection()
-    saveBranchesToMongo(loadBranchesFromGit())
+    getRepos().map(function(val) {
+        saveBranchesToMongo(loadBranchesFromGit(val))
+    });
   }
 })
