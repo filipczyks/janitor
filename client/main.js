@@ -6,10 +6,9 @@ import { Branches } from '../branches.js';
 import './main.html';
 
 Template.main.onCreated(function helloOnCreated() {
-  this.branches = new ReactiveVar([]);
+  this.branches = new ReactiveVar([])
   
   this.branches.set(Branches.find())
-  
 });
 
 Template.reloadButtons.events({
@@ -33,16 +32,17 @@ Template.main.helpers({
           rowClass: function(item) {
             var daysAgo = item.daysAgo;
             if(daysAgo > 50) {
-              return 'danger';
+              return 'danger'
             }
 
             if(daysAgo > 20) {
-              return 'warning';
+              return 'warning'
             }
 
-            return 'success';
+            return 'success'
           },
           fields: [
+            { key: 'repo', label: 'Repository' },
             { key: 'name', label: 'Branch', tmpl: Template.tdBranch},
             { key: 'merged', label: 'Merged?', tmpl: Template.tdMerged},
             { key: 'daysAgo', label: 'Days'},
@@ -50,13 +50,6 @@ Template.main.helpers({
             { key: 'author', label: 'Author'},
             { key: 'message', label: 'Message'},
         ]
-      };
-    return ;
+      }
   },
-});
-
-Template.tdBranch.helpers({
-  branchUrl() {
-    return Settings.branchUrl;
-  }
 });
